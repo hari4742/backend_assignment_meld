@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, BigInteger, String, Integer, DateTime, ForeignKey, CheckConstraint
 from sqlalchemy.sql import func
 from app.db.session import Base
 
@@ -17,3 +17,7 @@ class ReviewHistory(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True),
                         server_default=func.now(), onupdate=func.now())
+    __table_args__ = (
+        CheckConstraint('stars >= 1 AND stars <= 10',
+                        name='check_stars_range'),
+    )
