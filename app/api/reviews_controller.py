@@ -9,24 +9,14 @@ from app.schemas.category import CategoryInResponse
 from app.schemas.review import ReviewHistoryInResponse
 from app.tasks.ai_tasks import analyze_review_sentiment
 from app.core.config import settings
+from app.services.review_services import get_reviews_by_category, get_top_categories
 router = APIRouter()
 
 
 @router.get("/trends", response_model=list[CategoryInResponse])
 async def get_review_trends(db: Session = Depends(get_db)):
 
-    # TODO: move this query to services and check the query validity
-    result = db.query(
-        Category.id,
-        Category.name,
-        Category.description,
-        func.avg(ReviewHistory.stars).label("average_stars"),
-        func.count(ReviewHistory.id).label("total_reviews")
-    ).join(ReviewHistory, Category.id == ReviewHistory.category_id) \
-     .group_by(Category.id) \
-     .order_by(func.avg(ReviewHistory.stars).desc()) \
-     .limit(5) \
-     .all()
+    result = get_top_categories(db)
 
     log_access_task.delay("GET /reviews/trends")
 
@@ -44,12 +34,8 @@ async def get_review_trends(db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[ReviewHistoryInResponse])
 async def get_reviews(category_id: int, page: int = 1, page_size: int = settings.PAGE_SIZE, db: Session = Depends(get_db)):
-    offset = (page - 1) * page_size
 
-    # TODO: move this query to services and check the query validity
-    reviews = db.query(ReviewHistory).filter(ReviewHistory.category_id == category_id) \
-                .order_by(ReviewHistory.created_at.desc()) \
-                .offset(offset).limit(page_size).all()
+    reviews = get_reviews_by_category(db, category_id, page, page_size)
 
     log_access_task.delay(f"GET /reviews/?category_id={category_id}")
 
