@@ -6,7 +6,8 @@ from app.db.session import Base
 class ReviewHistory(Base):
     __tablename__ = "review_history"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                primary_key=True, autoincrement=True)
     text = Column(String, nullable=True)
     stars = Column(Integer, nullable=False)
     review_id = Column(String(255), nullable=False, index=True)
