@@ -1,4 +1,5 @@
-from sqlalchemy import Column, BigInteger, String
+from sqlalchemy import Column, BigInteger, String, DateTime
+from sqlalchemy.sql import func
 from app.db.session import Base
 
 
@@ -7,3 +8,4 @@ class AccessLog(Base):
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     text = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
