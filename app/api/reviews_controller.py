@@ -8,6 +8,7 @@ from app.tasks.log_tasks import log_access_task
 from app.schemas.category import CategoryInResponse
 from app.schemas.review import ReviewHistoryInResponse
 from app.tasks.ai_tasks import analyze_review_sentiment
+from app.core.config import settings
 router = APIRouter()
 
 
@@ -42,7 +43,7 @@ async def get_review_trends(db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[ReviewHistoryInResponse])
-async def get_reviews(category_id: int, page: int = 1, page_size: int = 15, db: Session = Depends(get_db)):
+async def get_reviews(category_id: int, page: int = 1, page_size: int = settings.PAGE_SIZE, db: Session = Depends(get_db)):
     offset = (page - 1) * page_size
 
     # TODO: move this query to services and check the query validity

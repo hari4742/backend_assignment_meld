@@ -1,7 +1,8 @@
 import openai
+from app.core.config import settings
 
-# TODO: move this to config file
-OPEN_AI_API_KEY = "sk-1234567890abcdef1234567890abcdef"
+OPEN_AI_API_KEY = settings.OPENAI_API_KEY
+OPEN_AI_MODEL = settings.OPENAI_MODEL
 
 
 def analyze_sentiment_with_llm(review_text: str, stars: int):
@@ -17,7 +18,7 @@ def analyze_sentiment_with_llm(review_text: str, stars: int):
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",  # Use the desired OpenAI model
+            model=OPEN_AI_MODEL,
             messages=[{"role": "user", "content": prompt}],
             api_key=OPEN_AI_API_KEY
         )

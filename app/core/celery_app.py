@@ -1,9 +1,8 @@
 from celery import Celery
+from app.core.config import settings
 
-# TODO: move this to config file
-REDIS_URL = "redis://localhost:6379/0"
 celery_app = Celery(
     "app",
-    broker=REDIS_URL,
-    backend=REDIS_URL,
+    broker=settings.CELERY_BROKER_URL,
+    backend=settings.CELERY_BACKEND_URL,
 )

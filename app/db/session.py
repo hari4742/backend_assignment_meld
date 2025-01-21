@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from contextlib import contextmanager
+from app.core.config import settings
 
-# TODO: move this to config file
-SQLALCHEMY_DATABASE_URL = "sqlite:///./app/db/reviews.db"
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={
                        "check_same_thread": False})
