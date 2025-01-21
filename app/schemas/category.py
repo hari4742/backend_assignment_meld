@@ -12,4 +12,4 @@ class CategoryInResponse(CategoryBase):
     total_reviews: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
