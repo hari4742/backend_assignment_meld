@@ -8,10 +8,7 @@ import datetime
 def log_access_task(log: str):
     with get_db() as db:
         access_log = AccessLog(
-            text=log,
-            created_at=datetime.datetime.now(datetime.timezone.utc)
+            text=log
         )
         db.add(access_log)
         db.commit()
-        db.refresh(access_log)
-        return access_log

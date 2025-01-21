@@ -13,5 +13,3 @@ def analyze_review_sentiment(review_id: int, review_text: str, stars: int):
             review.sentiment = sentiment
             review.tone = tone
             db.commit()
-            db.refresh(review)
-            return review
