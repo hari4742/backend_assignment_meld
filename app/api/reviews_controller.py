@@ -14,9 +14,9 @@ router = APIRouter()
 
 
 @router.get("/trends", response_model=list[CategoryInResponse])
-async def get_review_trends(db: Session = Depends(get_db)):
-
-    result = get_top_categories(db)
+async def get_review_trends():
+    with get_db() as db:
+        result = get_top_categories(db)
 
     log_access_task.delay("GET /reviews/trends")
 
@@ -33,9 +33,10 @@ async def get_review_trends(db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[ReviewHistoryInResponse])
-async def get_reviews(category_id: int, page: int = 1, page_size: int = settings.PAGE_SIZE, db: Session = Depends(get_db)):
-
-    reviews = get_reviews_by_category(db, category_id, page, page_size)
+async def get_reviews(category_id: int, page: int = 1, page_size: int = settings.PAGE_SIZE):
+    with get_db() as db:
+        reviews = get_reviews_by_category(
+            db, category_id, page, page_size)
 
     log_access_task.delay(f"GET /reviews/?category_id={category_id}")
 
