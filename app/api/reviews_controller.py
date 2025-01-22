@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from celery import group
 from app.db.session import get_db
 from app.models.category import Category
 from app.models.review import ReviewHistory
@@ -40,10 +41,19 @@ async def get_reviews(category_id: int, page: int = 1, page_size: int = settings
 
     log_access_task.delay(f"GET /reviews/?category_id={category_id}")
 
+    tasks = []
+
     for review in reviews:
         if not review.tone or not review.sentiment:
-            analyze_review_sentiment.delay(
-                review.id, review.text, review.stars)
+            tasks.append(analyze_review_sentiment.s(
+                review.id, review.text, review.stars))
+    job = group(tasks)
+    result = job.apply_async()
+    result.join()
+
+    with get_db() as db:
+        reviews = get_reviews_by_category(
+            db, category_id, page, page_size)
 
     return [
         ReviewHistoryInResponse(
