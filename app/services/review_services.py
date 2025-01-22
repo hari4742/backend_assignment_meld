@@ -12,7 +12,7 @@ def get_reviews_by_category(db: Session, category_id: int, page: int = 1, page_s
     subquery = (
         db.query(
             ReviewHistory.review_id,
-            func.max(ReviewHistory.created_at).label("latest_created_at")
+            func.max(ReviewHistory.id).label("r_id"),
         )
         .filter(ReviewHistory.category_id == category_id)
         .group_by(ReviewHistory.review_id)
@@ -25,7 +25,7 @@ def get_reviews_by_category(db: Session, category_id: int, page: int = 1, page_s
         .join(
             subquery,
             (ReviewHistory.review_id == subquery.c.review_id) &
-            (ReviewHistory.created_at == subquery.c.latest_created_at)
+            (ReviewHistory.id == subquery.c.r_id)
         )
         .order_by(desc(ReviewHistory.created_at))
         .offset(offset)
@@ -42,7 +42,7 @@ def get_top_categories(db: Session, limit: int = 5):
     subquery = (
         db.query(
             ReviewHistory.review_id,
-            func.max(ReviewHistory.created_at).label("latest_created_at")
+            func.max(ReviewHistory.id).label("r_id")
         )
         .group_by(ReviewHistory.review_id)
         .subquery()
@@ -60,7 +60,7 @@ def get_top_categories(db: Session, limit: int = 5):
         .join(
             subquery,
             (ReviewHistory.review_id == subquery.c.review_id) &
-            (ReviewHistory.created_at == subquery.c.latest_created_at)
+            (ReviewHistory.id == subquery.c.r_id)
         )
         .group_by(Category.id)
         .order_by(desc(func.avg(ReviewHistory.stars)))
